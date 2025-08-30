@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import React from 'react'
-
-const Navbar = () => {
-  return (
-    <div>Navbar</div>
-  )
-}
-
-export default Navbar
-=======
 import React from "react";
 import { assets } from "../assets/assets";
 import { NavLink } from "react-router-dom";
@@ -43,4 +32,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
->>>>>>> 265ad0e (changes)
