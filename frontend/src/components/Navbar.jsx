@@ -1,31 +1,47 @@
-import React from "react";
-import { assets } from "../assets/assets";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { assets } from "../assets/assets_frontend/assets";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [token, setToken] = useState(true); //Try changing it to false, notice the changes in the create account button
+
   return (
-    <div>
-      <img src={assets.logo} alt="" />
-      <ul>
-        <NavLink>
-          <li>HOME</li>
-          <hr />
+    <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
+      <img className="w-44 cursor-pointer" src={assets.logo} alt="" />
+      <ul className="hidden md:flex items-start gap-5 font-medium">
+        <NavLink to="/">
+          <li className="py-1">HOME</li>
+          <hr className="border-none outline-none h-0.5 bg-primary w-3/4 m-auto hidden" />
         </NavLink>
-        <NavLink>
-          <li>ALL DOCTORS</li>
-          <hr />
+        <NavLink to="/doctors">
+          <li className="py-1">ALL DOCTORS</li>
+          <hr className="border-none outline-none h-0.5 bg-primary w-3/4 m-auto hidden" />
         </NavLink>
-        <NavLink>
-          <li>ABOUT</li>
-          <hr />
+        <NavLink to="/about">
+          <li className="py-1">ABOUT</li>
+          <hr className="border-none outline-none h-0.5 bg-primary w-3/4 m-auto hidden" />
         </NavLink>
-        <NavLink>
-          <li>CONTACT</li>
-          <hr />
+        <NavLink to="/contact">
+          <li className="py-1">CONTACT</li>
+          <hr className="border-none outline-none h-0.5 bg-primary w-3/4 m-auto hidden" />
         </NavLink>
       </ul>
-      <div>
-        <button>Create account</button>
+      <div className="flex items-center gap-4">
+        {token ? (
+          <div className="flex items-center gap-2 cursor-pointer group relative">
+            <img className="w-8 rounded-full" src={assets.profile_pic} alt="" />
+            <img className="w-2.5" src={assets.dropdown_icon} alt="" />
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate("/login")}
+            className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hidden md:block">
+            Create account
+          </button>
+        )}
       </div>
     </div>
   );
