@@ -11,3 +11,6 @@ body {
 @theme {
   --color-primary: #155dfc;
 }
+::-webkit-scrollbar {
+  @apply hidden;
+}
