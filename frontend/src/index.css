@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  @apply bg-gradient-to-br from-sky-100 via-white to-sky-100;
+}
+
 .active hr {
   @apply block;
 }

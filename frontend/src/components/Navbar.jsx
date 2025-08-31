@@ -6,7 +6,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [showMenu, setShowMenu] = useState(false);
-  const [token, setToken] = useState(true); //Try changing it to false, notice the changes in the create account button
+  const [token, setToken] = useState(false); //Try changing it to false, notice the changes in the create account button
 
   return (
     <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
