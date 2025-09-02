@@ -108,9 +108,11 @@ const MyProfile = () => {
                 value={userData.gender}
                 onChange={(e) =>
                   setUserData((prev) => ({ ...prev, gender: e.target.value }))
-                }>
+                }
+              >
                 <option value="MALE">MALE</option>
                 <option value="FEMALE">FEMALE</option>
+                <option value="OTHER">OTHER</option>
               </select>
             ) : (
               <p className="text-gray-800">{userData.gender}</p>
@@ -135,13 +137,15 @@ const MyProfile = () => {
           {isEdit ? (
             <button
               className="border font-medium cursor-pointer border-primary px-8 py-2 rounded-full hover:bg-primary hover:text-white"
-              onClick={() => setIsEdit(false)}>
+              onClick={() => setIsEdit(false)}
+            >
               SAVE
             </button>
           ) : (
             <button
               className="border font-medium cursor-pointer border-primary px-8 py-2 rounded-full hover:bg-primary hover:text-white"
-              onClick={() => setIsEdit(true)}>
+              onClick={() => setIsEdit(true)}
+            >
               EDIT
             </button>
           )}
