@@ -45,22 +45,22 @@ const About = () => {
           WHY <span className="text-gray-700 font-semibold">CHOOSE US</span>
         </p>
       </div>
-      <div className="flex flex-col gap-x-5 md:flex-row mb-20 ">
-        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-2xl hover:text-white transition-all duration-300 text-black-600 cursor-pointer">
+      <div className="flex flex-col gap-x-5 gap-y-2 md:flex-row  mb-20 ">
+        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-2xl hover:text-white transition-all duration-300 text-black-600 cursor-pointer active:bg-blue-500">
           <b>EFFICIENCY</b>
           <p>
             Streamlined appointment scheduling that fits into your busy
             lifestyle.
           </p>
         </div>
-        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-2xl hover:text-white transition-all duration-300 text-black-600 cursor-pointer">
+        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-2xl hover:text-white transition-all duration-300 text-black-600 cursor-pointer active:bg-blue-500">
           <b>CONVENIENCE</b>
           <p>
             Access to a network of trusted healthcare professionals in your
             area.
           </p>
         </div>
-        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16  flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-blue-800 hover:text-white transition-all duration-300 text-black-600 cursor-pointer">
+        <div className="border rounded-xl px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-blue-500 hover:shadow-2xl hover:text-white transition-all duration-300 text-black-600 cursor-pointer active:bg-blue-500">
           <b>PERSONALIZATION</b>
           <p>
             Tailored recommendations and reminders to help you stay on top of
