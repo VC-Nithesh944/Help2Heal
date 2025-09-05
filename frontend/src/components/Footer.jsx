@@ -9,7 +9,7 @@ const Footer = () => {
         <div>
           <img className="mb-5 w-40" src={assets.logo} alt="" />
           <p className="w-full md:w-2/3 text-gray-600 leading-6">
-            Help to Heal brings doctors and patients closer with simple, secure
+            Help2Heal brings doctors and patients closer with simple, secure
             booking. Easily schedule, manage, and track appointments anytime,
             anywhere. Your health, our priority — making care accessible for
             everyone.

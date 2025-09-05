@@ -19,7 +19,7 @@ const MyProfile = () => {
 
   return (
     <div className="p-6 flex items-center bg-sky-200 rounded-lg shadow-2xl mb-4">
-      <div className="max-w-lg flex flex-col gap-2 text-sm mx-10">
+      <div className="max-w-lg flex flex-col gap-2 text-sm sm:mx-1 md:mx-10">
         <div className="relative p-1 w-48 h-48">
           <img
             className="w-full h-full rounded-full"
@@ -46,9 +46,9 @@ const MyProfile = () => {
         <hr className="bg-black h-[1px] border-none" />
         <div>
           <p className="text-gray-900 text-lg mt-1">CONTACT INFORMATION</p>
-          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 gap-x-15 mt-3 text-neutral-700">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_3fr]  gap-y-2.5 gap-x-5 mt-3 text-neutral-700">
             <p className="font-medium">EMAIL ID:</p>
-            <p className=" text-blue-500">{userData.email}</p>
+            <p className="break-words text-blue-500">{userData.email}</p>
             <p className=" font-medium">PHONE:</p>
             {isEdit ? (
               <input
@@ -100,7 +100,7 @@ const MyProfile = () => {
         </div>
         <div>
           <p className="text-gray-900 text-lg mt-1">BASIC INFORMATION</p>
-          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 gap-x-15 text-neutral-700 mt-3 ">
+          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 gap-x-5 text-neutral-700 mt-3 ">
             <p className="font-medium ">GENDER:</p>
             {isEdit ? (
               <select
