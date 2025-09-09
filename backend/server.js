@@ -1,10 +1,15 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import connectDB from "./config/mongodb.js";
+import connectCloudinary from "./config/cloudinary.js";
+import adminRouter from "./routes/adminRoute.js";
 
 //app configuration
 const app = express();
 const port = process.env.PORT || 5000;
+connectDB();
+connectCloudinary();
 
 //middlewares : Whatever the info that we request get Passed through this.
 app.use(express.json());
@@ -13,6 +18,8 @@ app.use(cors());
 //Cors (Cross Origin Resource Sharing) : Since frontend and backend run on different ports, this is used to connect them and make then work as one
 
 //API endpoints
+app.use("/api/admin", adminRouter);
+//localhost:4000/api/admin
 app.get("/", (req, res) => {
   res.send("API Working");
 });
