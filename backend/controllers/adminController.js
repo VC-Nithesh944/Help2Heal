@@ -48,15 +48,15 @@ const addDoctor = async (req, res) => {
       });
     }
     // ...existing code...
-const salt = await bcrypt.genSalt(10);
-const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-const imageFile = req.file; // <-- Add this
-const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-  resource_type: "image",
-});
-const iamgeUrl = imageUpload.secure_url;
-// ...existing code...
+    const imageFile = req.file; // <-- Add this
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
+    const iamgeUrl = imageUpload.secure_url;
+    // ...existing code...
     const doctorData = {
       name,
       email,
