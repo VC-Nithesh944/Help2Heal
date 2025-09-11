@@ -1,4 +1,7 @@
-import validator from "validator"
+import validator from "validator";
+import bcrypt from "bcrypt";
+import { v2 as cloudinary } from "cloudinary";
+import doctorModel from "../models/doctorModel.js";
 // api for adding doctors by the admin
 const addDoctor = async (req, res) => {
   try {
@@ -44,8 +47,32 @@ const addDoctor = async (req, res) => {
         message: "Please enter a Strong Password!",
       });
     }
+    // ...existing code...
+const salt = await bcrypt.genSalt(10);
+const hashedPassword = await bcrypt.hash(password, salt);
 
-    return res.json({ success: true, message: "Successful" });
+const imageFile = req.file; // <-- Add this
+const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+  resource_type: "image",
+});
+const iamgeUrl = imageUpload.secure_url;
+// ...existing code...
+    const doctorData = {
+      name,
+      email,
+      image: iamgeUrl,
+      password: hashedPassword,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address: JSON.parse(address),
+      date: Date.now(),
+    };
+    const newDoctor = new doctorModel(doctorData);
+    await newDoctor.save();
+    res.json({ success: true, message: "doctor added" });
 
     //We need the image file, that will parsed by upload.single middleware
     // const imageFile = req.file
@@ -62,7 +89,8 @@ const addDoctor = async (req, res) => {
     // }, imageFile)
     //Since we are not returning anything, the process is loading continuosly res.json()
   } catch (error) {
-    return res.json({success:false, message:error.message})
+    console.log(error);
+    return res.json({ success: false, message: error.message });
   }
 };
 
