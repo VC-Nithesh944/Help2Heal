@@ -1,5 +1,6 @@
 import React from "react";
-import { assets } from "../assets/assets_admin/assets";
+import { assets } from "../../assets/assets_admin/assets";
+
 
 const AddDoctor = () => {
   return (
