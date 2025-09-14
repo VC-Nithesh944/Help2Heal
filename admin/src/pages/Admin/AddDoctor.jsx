@@ -31,7 +31,6 @@ const AddDoctor = () => {
                 required
               />
             </div>
-
             <div className="flex-1 flex flex-col gap-1">
               <p> Doctor email</p>
               <input
