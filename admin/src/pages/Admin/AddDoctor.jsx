@@ -127,6 +127,7 @@ const AddDoctor = () => {
         <button className="bg-primary px-10 py-3 mt-4 text-white rounded-full">
           Add Doctor
         </button>
+
       </div>
     </form>
   );
