@@ -43,12 +43,12 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
     if (!user) {
-      res.json({ success: false, message: "user doesnot exist" });
+      return res.json({ success: false, message: "user doesnot exist" });
     }
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET); //The user._id we will be used in userAuth.js file
       res.json({ success: true, token });
     } else {
       res.json({ success: false, message: "invalid credentials" });
@@ -58,4 +58,19 @@ const loginUser = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-export { registerUser, loginUser };
+
+//API to get user Profile Data
+const getProfile = async (req, res) => {
+  try {
+    // we will be getting userId from authentication, not by the user, but insted by token
+    const { userId } = req;
+    //To change the header into userId we are going to use a middleware
+    const userData = await userModel.findById(userId).select("-password");
+
+    return res.json({ success: true, userData });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+export { registerUser, loginUser, getProfile };
