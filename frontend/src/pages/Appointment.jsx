@@ -142,7 +142,8 @@ const Appointment = () => {
                       ? "bg-primary text-white"
                       : "border border-gray-300"
                   }`}
-                  key={index}>
+                  key={index}
+                >
                   <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
                   <p>{item[0] && item[0].datetime.getDate()}</p>
                 </div>
@@ -158,7 +159,8 @@ const Appointment = () => {
                       ? "bg-primary text-white"
                       : "border border-gray-300 text-black"
                   }`}
-                  key={index}>
+                  key={index}
+                >
                   {item.time.toLowerCase()}
                 </p>
               ))}
