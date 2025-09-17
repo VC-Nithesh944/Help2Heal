@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 export const AppContext = createContext();
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -11,6 +11,8 @@ const AppContextProvider = (props) => {
   const [token, setToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : false
   );
+
+  const [userData, setUserData] = useState(false);
 
   const getDoctorsData = async () => {
     try {
@@ -26,14 +28,42 @@ const AppContextProvider = (props) => {
     }
   };
 
+  const loadUserProfileData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/user/get-profile", {
+        headers: { token },
+      });
+
+      if (data.success) {
+        setUserData(data.userData)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+
   const value = {
     doctors,
     currencySymbol,
     token,
     setToken,
     backendUrl,
+    userData, setUserData,
+    loadUserProfileData,
   };
 
+  //we need to run this function whenever the user will be logged in
+  useEffect(() => { 
+    if (token) {
+      loadUserProfileData();
+    } else {
+      setUserData(false)
+    }
+  }, [token])
   useEffect(() => {
     getDoctorsData();
   }, []);

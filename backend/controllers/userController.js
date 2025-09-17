@@ -4,7 +4,6 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 
-
 //API TO LOGIN USER
 
 //API TO REGISTER USER
@@ -79,8 +78,9 @@ const getProfile = async (req, res) => {
 //API to update the user Profile
 const updateProfile = async (req, res) => {
   try {
-    const { userId, name, phone, address, dob, gender } = req.body;
-    imageFile = req.imageFile;
+    const { userId } = req;
+    const { name, phone, address, dob, gender } = req.body;
+    const imageFile = req.file;
 
     if (!name || !phone || !dob || !gender) {
       return res.json({ success: false, message: "Data Missing" });
@@ -95,16 +95,16 @@ const updateProfile = async (req, res) => {
     });
 
     if (imageFile) {
-      
-      //Upload image to cloudinary 
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
-      const imageURL = imageUpload.secure_url
+      //Upload image to cloudinary
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+        resource_type: "image",
+      });
+      const imageURL = imageUpload.secure_url;
 
-      await userModel.findByIdAndUpdate(userId, {image: imageURL})
-
+      await userModel.findByIdAndUpdate(userId, { image: imageURL });
     }
 
-    res.json({success: true, message: "Profile Updated!"})
+    res.json({ success: true, message: "Profile Updated!" });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
