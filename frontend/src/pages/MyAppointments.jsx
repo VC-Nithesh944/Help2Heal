@@ -4,25 +4,60 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const MyAppointments = () => {
-  const { backendUrl, token } = useContext(AppContext);
+  const { backendUrl, token, getDoctorsData } = useContext(AppContext);
 
   const [appointments, setAppointments] = useState([]);
-  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  
+  const months = [
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
   const slotDateFormat = (slotDate) => {
-    const dateArray = slotDate.split("_")
-    return dateArray[0] + " " + months[Number(dateArray[1])] + " "+ dateArray[2]
-  }
+    const dateArray = slotDate.split("_");
+    return (
+      dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2]
+    );
+  };
 
   const getUserAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/user/appointment",  {
+      const { data } = await axios.get(backendUrl + "/api/user/appointment", {
         headers: { token },
       });
 
       if (data.success) {
         setAppointments(data.appointments.reverse()); //To get the latest appointments on the top using the reverse()
-        console.log(data.appointments)
+        console.log(data.appointments);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/cancel-appointment",
+        { appointmentId },
+        { headers: { token } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getUserAppointments();
+        getDoctorsData();
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
@@ -32,9 +67,9 @@ const MyAppointments = () => {
 
   useEffect(() => {
     if (token) {
-      getUserAppointments()
+      getUserAppointments();
     }
-   }, [token])
+  }, [token]);
   return (
     <div>
       <p className="pb-3 mt-12 text-2xl font-medium text-zinc-700 border-b">
@@ -44,7 +79,8 @@ const MyAppointments = () => {
         {appointments.slice(0, 3).map((item, index) => (
           <div
             className="grid grid-cols-[1fr_2fr]  gap-4 sm:flex sm:gap-6 py-2 border-b"
-            key={index}>
+            key={index}
+          >
             <div>
               <img
                 className="w-34 bg-indigo-50 rounded border-1 border-gray-500 shadow-lg"
@@ -53,7 +89,9 @@ const MyAppointments = () => {
               />
             </div>
             <div className="flex-1 text-sm text-zinc-600">
-              <p className="text-neutral-800 font-semibold">{item.docData.name}</p>
+              <p className="text-neutral-800 font-semibold">
+                {item.docData.name}
+              </p>
               <p>{item.docData.speciality}</p>
               <p className="text-zinc-700 font-medium mt-1">Address:</p>
               <p className="text-xs">{item.docData.address.line1}</p>
@@ -67,12 +105,25 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              <button className="text-sm text-neutral-800 text-center sm: min-w-48 py-2 border rounded hover:bg-green-500 hover:text-white transition-all active:bg-green-500 active:duration-10 duration-300">
-                Pay Online
-              </button>
-              <button className="text-sm text-neutral-800 text-center sm: min-w-48 py-2 border rounded hover:bg-red-500 hover:text-white transition-all active:bg-red-500 active:duration-10 duration-300">
-                Cancel Appointment
-              </button>
+              {!item.cancelled && (
+                <button className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-green-500 hover:text-white transition-all active:bg-green-500 active:duration-10 duration-300">
+                  Pay Online
+                </button>
+              )}
+
+              {!item.cancelled && (
+                <button
+                  onClick={() => cancelAppointment(item._id)}
+                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-red-500 hover:text-white transition-all active:bg-red-500 active:duration-10 duration-300"
+                >
+                  Cancel Appointment
+                </button>
+              )}
+              {item.cancelled && (
+                <button className="sm:min-w-48 py-2 border border-red-900 rounded text-red-700">
+                  Appointment cancelled
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -80,5 +131,4 @@ const MyAppointments = () => {
     </div>
   );
 };
-
 export default MyAppointments;
