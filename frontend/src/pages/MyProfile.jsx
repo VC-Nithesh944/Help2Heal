@@ -5,9 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const MyProfile = () => {
-  const { userData, setUserData, backendUrl, token, loadUserProfileData } =
-    useContext(AppContext);
-
+  const { userData, setUserData, backendUrl, token, loadUserProfileData } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
   const [image, setImage] = useState(false);
 
