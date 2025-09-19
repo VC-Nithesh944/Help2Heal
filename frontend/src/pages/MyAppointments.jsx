@@ -65,6 +65,20 @@ const MyAppointments = () => {
     }
   };
 
+  const appointmentRazorpay = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/payment-cashfree",
+        { appointmentId },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        console.log(data.order)
+      }
+    } catch (error) {}
+  };
+
   useEffect(() => {
     if (token) {
       getUserAppointments();
@@ -79,8 +93,7 @@ const MyAppointments = () => {
         {appointments.slice(0, 3).map((item, index) => (
           <div
             className="grid grid-cols-[1fr_2fr]  gap-4 sm:flex sm:gap-6 py-2 border-b"
-            key={index}
-          >
+            key={index}>
             <div>
               <img
                 className="w-34 bg-indigo-50 rounded border-1 border-gray-500 shadow-lg"
@@ -106,7 +119,9 @@ const MyAppointments = () => {
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
               {!item.cancelled && (
-                <button className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-green-500 hover:text-white transition-all active:bg-green-500 active:duration-10 duration-300">
+                <button
+                  onClick={() => appointmentRazorpay(item._id)}
+                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-green-500 hover:text-white transition-all active:bg-green-500 active:duration-10 duration-300">
                   Pay Online
                 </button>
               )}
@@ -114,8 +129,7 @@ const MyAppointments = () => {
               {!item.cancelled && (
                 <button
                   onClick={() => cancelAppointment(item._id)}
-                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-red-500 hover:text-white transition-all active:bg-red-500 active:duration-10 duration-300"
-                >
+                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-red-500 hover:text-white transition-all active:bg-red-500 active:duration-10 duration-300">
                   Cancel Appointment
                 </button>
               )}
