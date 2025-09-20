@@ -21,6 +21,7 @@ const Appointment = () => {
   //To calculate the slots above, we will use the below function
   const getAvailableSlots = async () => {
     setDocSlots([]);
+    if (!docInfo || !docInfo.slots_booked) return; // <-- Add this line
 
     //getting current Date
     let today = new Date();
@@ -71,16 +72,14 @@ const Appointment = () => {
           docInfo.slots_booked[slotDate].includes(slotTime)
             ? false
             : true;
-        
+
         if (isSlotAvailable) {
-          
           //add slot to timeSlots array created above
           timeSlots.push({
             datetime: new Date(currentDate),
             time: formattedTime,
           });
         }
-
 
         //Incrementing time by 30 minutes
         currentDate.setMinutes(currentDate.getMinutes() + 30);

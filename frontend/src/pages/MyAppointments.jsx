@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext);
-
   const [appointments, setAppointments] = useState([]);
+
   const months = [
     "",
     "Jan",
@@ -32,51 +33,83 @@ const MyAppointments = () => {
 
   const getUserAppointments = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/user/appointment", {
+      const { data } = await axios.get(`${backendUrl}/api/user/appointment`, {
         headers: { token },
       });
-
       if (data.success) {
-        setAppointments(data.appointments.reverse()); //To get the latest appointments on the top using the reverse()
-        console.log(data.appointments);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
-  const cancelAppointment = async (appointmentId) => {
-    try {
-      const { data } = await axios.post(
-        backendUrl + "/api/user/cancel-appointment",
-        { appointmentId },
-        { headers: { token } }
-      );
-      if (data.success) {
-        toast.success(data.message);
-        getUserAppointments();
-        getDoctorsData();
+        setAppointments(data.appointments.reverse());
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to fetch appointments");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message || error.message || "Network error"
+      );
     }
   };
 
-  const appointmentRazorpay = async (appointmentId) => {
+  // Cashfree payment integration
+  const appointmentCashfree = async (appointmentId) => {
     try {
+      // create order & get payment_session_id from backend
       const { data } = await axios.post(
-        backendUrl + "/api/user/payment-cashfree",
+        `${backendUrl}/api/user/payment-cashfree`,
         { appointmentId },
         { headers: { token } }
       );
+      if (!data.success)
+        throw new Error(data.message || "Order creation failed");
 
-      if (data.success) {
-        console.log(data.order)
+      const cashfree = await load({ mode: "sandbox" });
+      const result = await cashfree.checkout({
+        paymentSessionId: data.order.payment_session_id,
+        redirectTarget: "_modal",
+      });
+
+      // If the SDK returns paymentDetails, verify on backend and refresh UI
+      if (result.paymentDetails) {
+        // attempt server-side verification (safer than trusting client-only)
+        const markResp = await axios.post(
+          `${backendUrl}/api/user/mark-appointment-paid`,
+          { appointmentId },
+          { headers: { token } }
+        );
+        if (markResp.data?.success) {
+          await getUserAppointments(); // refresh to reflect paid=true
+          toast.success("Payment successful and verified");
+        } else {
+          // not marked on server — show message and still refresh to get latest
+          await getUserAppointments();
+          toast.info(
+            markResp.data?.message || "Payment completed; verification pending"
+          );
+        }
+      } else if (result.error) {
+        toast.error("Payment failed or was closed");
+      } else {
+        // fallback: attempt verification anyway after a short delay
+        setTimeout(async () => {
+          const markResp = await axios.post(
+            `${backendUrl}/api/user/mark-appointment-paid`,
+            { appointmentId },
+            { headers: { token } }
+          );
+          if (markResp.data?.success) {
+            await getUserAppointments();
+            toast.success("Payment verified");
+          } else {
+            toast.info(markResp.data?.message || "Payment not verified yet");
+          }
+        }, 2000);
       }
-    } catch (error) {}
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Payment initiation failed."
+      );
+      console.error("appointmentCashfree error:", error);
+    }
   };
 
   useEffect(() => {
@@ -84,6 +117,7 @@ const MyAppointments = () => {
       getUserAppointments();
     }
   }, [token]);
+
   return (
     <div>
       <p className="pb-3 mt-12 text-2xl font-medium text-zinc-700 border-b">
@@ -118,14 +152,20 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && (
+              {!item.cancelled && !item.paid && (
                 <button
-                  onClick={() => appointmentRazorpay(item._id)}
-                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-green-500 hover:text-white transition-all active:bg-green-500 active:duration-10 duration-300">
+                  onClick={() => appointmentCashfree(item._id)}
+                  className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded transition-all duration-300 hover:bg-green-500 hover:text-white active:bg-green-500">
                   Pay Online
                 </button>
               )}
-
+              {!item.cancelled && item.paid && (
+                <button
+                  disabled
+                  className="text-sm text-white bg-green-600 text-center sm:min-w-48 py-2 border rounded cursor-not-allowed">
+                  Paid
+                </button>
+              )}
               {!item.cancelled && (
                 <button
                   onClick={() => cancelAppointment(item._id)}

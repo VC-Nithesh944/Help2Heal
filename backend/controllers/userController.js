@@ -4,9 +4,8 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
+import { Cashfree, CFEnvironment } from "cashfree-pg";
 import appointmentModel from "../models/appointmentModel.js";
-import { Cashfree } from "cashfree-pg";
-import axios from "axios";
 
 //API TO LOGIN USER
 
@@ -201,58 +200,141 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
-//Creating razorpay instance
-// const cashfreeInstance = new Cashfree({
-//   clientId: process.env.CASHFREE_KEY_ID,
-//   clientSecret: process.env.CASHFREE_KEY_SECRET,
-//   env: "SANDBOX",
-// }); Not needed when i am using restful API
+// Initialize Cashfree SDK (ensure env vars exist)
+const cashfree = new Cashfree(
+  CFEnvironment.SANDBOX,
+  process.env.CASHFREE_KEY_ID,
+  process.env.CASHFREE_KEY_SECRET
+);
 
-//API to make payment of appointment using Cashfree
+// API to make payment of appointment using Cashfree
 const paymentCashfree = async (req, res) => {
   try {
+    const userId = req.userId;
     const { appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-
     if (!appointmentData || appointmentData.cancelled) {
       return res.json({
         success: false,
-        message: "Appointment Cancelled or Not Found",
+        message: "Appointment not found or cancelled",
       });
     }
 
-    // Prepare order data
-    const orderData = {
-      order_id: appointmentId,
-      order_amount: appointmentData.amount,
+    // generate unique order_id
+    const order_id = `${userId}_${appointmentId}_${Date.now()}`;
+
+    const orderPayload = {
+      order_id,
+      order_amount: appointmentData.amount.toString(),
       order_currency: "INR",
       customer_details: {
         customer_id: appointmentData.userId.toString(),
-        customer_email: appointmentData.userData.email,
-        customer_phone: appointmentData.userData.phone || "9999999999",
+        customer_name: appointmentData.userData?.name || "",
+        customer_email: appointmentData.userData?.email || "",
+        customer_phone: appointmentData.userData?.phone || "0000000000",
+      },
+      order_meta: {
+        return_url: `${
+          process.env.CLIENT_RETURN_URL ||
+          "https://test.cashfree.com/pgappsdemos/return.php"
+        }?order_id=${order_id}`,
       },
     };
 
-    // Make request to Cashfree API
-    const response = await axios.post(
-      "https://sandbox.cashfree.com/pg/orders",
-      orderData,
-      {
-        headers: {
-          "x-client-id": process.env.CASHFREE_KEY_ID,
-          "x-client-secret": process.env.CASHFREE_KEY_SECRET,
-          "Content-Type": "application/json",
-          "x-api-version": "2025-01-01"
-        },
-      }
+    // create order via SDK
+    const response = await cashfree.PGCreateOrder(orderPayload);
+    const orderData = response.data;
+
+    // persist order_id on appointment for later verification
+    appointmentData.order_id = order_id;
+    await appointmentData.save();
+
+    return res.json({ success: true, order: orderData });
+  } catch (error) {
+    console.error("paymentCashfree error:", error?.response?.data || error);
+    return res.json({
+      success: false,
+      message:
+        error?.response?.data?.message ||
+        error.message ||
+        "Failed to create order",
+    });
+  }
+};
+
+// Verify order status with Cashfree and mark appointment paid
+const markAppointmentPaid = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    if (!appointmentId)
+      return res.json({ success: false, message: "Missing appointmentId" });
+
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment)
+      return res.json({ success: false, message: "Appointment not found" });
+    if (!appointment.order_id)
+      return res.json({
+        success: false,
+        message: "Order ID not saved on appointment",
+      });
+
+    // debug: log the saved order_id
+    console.log(
+      "markAppointmentPaid: checking order_id =",
+      appointment.order_id
     );
 
-    res.json({ success: true, order: response.data });
-  } catch (error) {
-    console.log(error?.response?.data || error);
-    res.json({
+    // init Cashfree client (use your env vars)
+    const cf = new Cashfree(
+      CFEnvironment.SANDBOX,
+      process.env.CASHFREE_CLIENT_ID || process.env.CASHFREE_KEY_ID,
+      process.env.CASHFREE_CLIENT_SECRET || process.env.CASHFREE_KEY_SECRET
+    );
+
+    // Correct call: pass order_id as FIRST argument
+    // Some SDK versions allow passing apiVersion as second arg, but order_id must be first
+    const apiVersion = process.env.CF_API_VERSION || "2025-01-01";
+    let resp;
+    try {
+      // primary: order_id first
+      resp = await cf.PGFetchOrder(appointment.order_id, apiVersion);
+    } catch (e1) {
+      // fallback: try calling with only order_id (some SDK builds accept single arg)
+      console.warn(
+        "PGFetchOrder failed with (orderId, apiVersion), trying (orderId) fallback:",
+        e1.message
+      );
+      resp = await cf.PGFetchOrder(appointment.order_id);
+    }
+
+    console.log("PGFetchOrder response:", resp?.data);
+
+    const status =
+      resp?.data?.order_status ||
+      resp?.data?.order?.status ||
+      resp?.data?.status;
+    if (
+      status &&
+      (status.toUpperCase() === "PAID" || status.toUpperCase() === "SUCCESS")
+    ) {
+      appointment.paid = true;
+      await appointment.save();
+      return res.json({ success: true, message: "Marked paid" });
+    }
+
+    return res.json({
       success: false,
-      message: error?.response?.data?.message || error.message || "Payment error",
+      message: `Order status: ${status || "unknown"}`,
+      raw: resp?.data,
+    });
+  } catch (error) {
+    console.error("markAppointmentPaid error:", error?.response?.data || error);
+    return res.json({
+      success: false,
+      message:
+        error?.response?.data?.message ||
+        error.message ||
+        "Verification failed",
     });
   }
 };
@@ -266,4 +348,5 @@ export {
   listAppointments,
   cancelAppointment,
   paymentCashfree,
+  markAppointmentPaid,
 };

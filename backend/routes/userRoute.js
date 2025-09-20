@@ -8,6 +8,7 @@ import {
   listAppointments,
   cancelAppointment,
   paymentCashfree,
+  markAppointmentPaid,
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 import upload from "../middlewares/multer.js";
@@ -19,7 +20,7 @@ userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
 
 userRouter.get("/get-profile", authUser, getProfile);
-userRouter.post("/cancel-appointment",authUser,cancelAppointment)
+userRouter.post("/cancel-appointment", authUser, cancelAppointment);
 
 userRouter.post(
   "/update-profile",
@@ -32,5 +33,7 @@ userRouter.post("/book-appointment", authUser, bookAppointment);
 
 userRouter.get("/appointment", authUser, listAppointments);
 
-userRouter.post("/payment-cashfree", authUser, paymentCashfree)
+userRouter.post("/payment-cashfree", authUser, paymentCashfree);
+userRouter.post("/mark-appointment-paid", authUser, markAppointmentPaid);
+
 export default userRouter;
