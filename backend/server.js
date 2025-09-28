@@ -16,10 +16,7 @@ connectCloudinary();
 //middlewares : Whatever the info that we request get Passed through this.
 app.use(express.json());
 //Express.json converts any request that we send into Json format or info that we recieve in Json format
-app.use(cors({
-  origin: "http://localhost:5173", // or your frontend URL
-  credentials: true
-}));
+app.use(cors());
 //Cors (Cross Origin Resource Sharing) : Since frontend and backend run on different ports, this is used to connect them and make then work as one
 
 //API endpoints
