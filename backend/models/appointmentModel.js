@@ -12,6 +12,7 @@ const appointmentSchema = new mongoose.Schema(
     order_id: { type: String, default: null },
     userData: { type: Object, required: true },
     docData: { type: Object, required: true },
+    isCompleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
