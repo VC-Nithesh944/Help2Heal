@@ -40,7 +40,10 @@ const Doctors = () => {
           onClick={() => setShowFilter((prev) => !prev)}>
           Filters
         </button>
-        <div className={`flex-col gap-4 text-sm text-gray-600 ${showFilter ? 'flex' : 'hidden sm:flex'}`}>
+        <div
+          className={`flex-col gap-4 text-sm text-gray-600 ${
+            showFilter ? "flex" : "hidden sm:flex"
+          }`}>
           <p
             onClick={() =>
               speciality === "General physician"
@@ -120,9 +123,15 @@ const Doctors = () => {
               key={index}>
               <img className="bg-blue-50" src={item.image} alt="" />
               <div className="p-4">
-                <div className="flex items-center gap-2 text-center text-green-500">
-                  <p className="w-2 h-2 bg-green-500 rounded-full"></p>
-                  <p>Available</p>
+                <div
+                  className={`flex items-center gap-2 text-center ${
+                    item.available ? `text-green-500` : `text-gray-500`
+                  }`}>
+                  <p
+                    className={`w-2 h-2 ${
+                      item.available ? `bg-green-500` : `bg-gray-500`
+                    } rounded-full`}></p>
+                  <p>{item.available ? "Available" : "Not Available"}</p>
                 </div>
                 <p className="text-gray-900 text-lg font-medium">{item.name}</p>
                 <p className="text-gray-900 text-sm">{item.speciality}</p>

@@ -152,30 +152,35 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && !item.paid && (
+              {!item.cancelled && !item.paid && !item.isCompleted && (
                 <button
                   onClick={() => appointmentCashfree(item._id)}
                   className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded transition-all duration-300 hover:bg-green-500 hover:text-white active:bg-green-500">
                   Pay Online
                 </button>
               )}
-              {!item.cancelled && item.paid && (
+              {!item.cancelled && item.paid && !item.isCompleted && (
                 <button
                   disabled
                   className="text-sm text-white bg-green-600 text-center sm:min-w-48 py-2 border rounded cursor-not-allowed">
                   Paid
                 </button>
               )}
-              {!item.cancelled && (
+              {!item.cancelled && !item.isCompleted && (
                 <button
                   onClick={() => cancelAppointment(item._id)}
                   className="text-sm text-neutral-800 text-center sm:min-w-48 py-2 border rounded hover:bg-red-500 hover:text-white transition-all active:bg-red-500 active:duration-10 duration-300">
                   Cancel Appointment
                 </button>
               )}
-              {item.cancelled && (
+              {item.cancelled && !item.isCompleted && (
                 <button className="sm:min-w-48 py-2 border border-red-900 rounded text-red-700">
                   Appointment cancelled
+                </button>
+              )}
+              {item.isCompleted && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500">
+                  Completed
                 </button>
               )}
             </div>
