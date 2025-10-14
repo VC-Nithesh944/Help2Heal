@@ -90,6 +90,7 @@ const Navbar = () => {
             Create account
           </button>
         )}
+        
         <img
           onClick={() => setShowMenu(true)}
           className="w-6 md:hidden"
