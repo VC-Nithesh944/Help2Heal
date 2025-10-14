@@ -16,7 +16,7 @@ const AppContextProvider = (props) => {
 
   const getDoctorsData = async () => {
    try {
-    const { data } = await axios.get(`${backendUrl}/api/doctor/doctors-list`, {
+    const { data } = await axios.get(`${backendUrl}/api/doctor/list`, {
       timeout: 8000 // 8 second timeout
     });
 
