@@ -19,11 +19,18 @@ const changeAvailability = async (req, res) => {
 };
 const doctorList = async (req, res) => {
   try {
-    const doctors = await doctorModel.find({}).select(["-password", "-email"]);
+    const doctors = await doctorModel
+      .find({ available: true })
+      .select("-password -email")
+      .lean();
+
     res.json({ success: true, doctors });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error("doctorList error:", error);
+    res.json({
+      success: false,
+      message: "An error occurred while fetching doctors.",
+    });
   }
 };
 
@@ -162,35 +169,30 @@ const doctorDashboard = async (req, res) => {
 //API to get Doctor profile for Doctor Panel
 const doctorProfile = async (req, res) => {
   try {
-    
     const { docId } = req;
-    const profileData = await doctorModel.findById(docId).select('-password')
+    const profileData = await doctorModel.findById(docId).select("-password");
 
-    res.json({success: true, profileData})
-
+    res.json({ success: true, profileData });
   } catch (error) {
-    console.log(error)
-    res.json({success: false, message : error.message})
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
 //API to update doctor profile Data from doctor panel
 const updateDoctorProfile = async (req, res) => {
   try {
-
     const { docId } = req;
     const { fees, address, available } = req.body;
 
-    await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
-    
-    res.json({ success: true, message: "Profile Updated" })
-    
-    
+    await doctorModel.findByIdAndUpdate(docId, { fees, address, available });
+
+    res.json({ success: true, message: "Profile Updated" });
   } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: error.message})
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-}
+};
 export {
   changeAvailability,
   doctorList,

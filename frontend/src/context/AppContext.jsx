@@ -15,17 +15,27 @@ const AppContextProvider = (props) => {
   const [userData, setUserData] = useState(false);
 
   const getDoctorsData = async () => {
-    try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/list");
-      if (data.success) {
-        setDoctors(data.doctors);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(encodeURIComponent.message);
+   try {
+    const { data } = await axios.get(`${backendUrl}/api/doctor/doctors-list`, {
+      timeout: 8000 // 8 second timeout
+    });
+
+    if (data.success) {
+      setDoctors(data.doctors);
+    } else {
+      toast.error(data.message || "Failed to load doctors");
     }
+  } catch (error) {
+    console.error("getDoctorsData error:", error);
+    // Check for timeout
+    if (error.code === 'ECONNABORTED') {
+      toast.error("Request timed out - please refresh");
+    } else {
+      toast.error(error.response?.data?.message || "Failed to load doctors");
+    }
+    // Set empty array to prevent undefined errors
+    setDoctors([]);
+  }
   };
 
   const loadUserProfileData = async () => {
