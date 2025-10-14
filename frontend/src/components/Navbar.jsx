@@ -10,6 +10,7 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { token, setToken, userData } = useContext(AppContext);
 
+  const adminUrl = import.meta.env.VITE_ADMIN_URL;
   //TO remove token from localStorage
   const logout = () => {
     setToken(false);
@@ -49,31 +50,33 @@ const Navbar = () => {
           <li className="py-1">CONTACT</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/4 m-auto hidden" />
         </NavLink>
+        {/* Add Admin Panel NavLink */}
+        <li
+          onClick={() => window.open(adminUrl, "_blank", "noopener,noreferrer")}
+          className="py-1.5 text-xs px-5 cursor-pointer border rounded-full text-blue-600 hover:text-blue-700">
+          Admin Panel
+        </li>
       </ul>
       <div className="flex items-center gap-4">
         {token && userData ? (
           <div
             onClick={() => setShowDropdown((prev) => !prev)}
-            className="flex items-center gap-2 cursor-pointer group relative"
-          >
+            className="flex items-center gap-2 cursor-pointer group relative">
             <img className="w-8 rounded-full" src={userData.image} alt="" />
             <img className="w-2.5" src={assets.dropdown_icon} alt="" />
             <div
               className={`absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 ${
                 showDropdown ? "block" : "hidden"
-              }  group-hover:block `}
-            >
+              }  group-hover:block `}>
               <div className="min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4">
                 <p
                   onClick={() => navigate("my-profile")}
-                  className="hover:text-black cursor-pointer"
-                >
+                  className="hover:text-black cursor-pointer">
                   My Profile
                 </p>
                 <p
                   onClick={() => navigate("my-appointments")}
-                  className="hover:text-black cursor-pointer"
-                >
+                  className="hover:text-black cursor-pointer">
                   My Appointments
                 </p>
                 <p onClick={logout} className="hover:text-black cursor-pointer">
@@ -85,12 +88,11 @@ const Navbar = () => {
         ) : (
           <button
             onClick={() => navigate("/login")}
-            className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hidden md:block cursor-pointer"
-          >
+            className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hidden md:block cursor-pointer">
             Create account
           </button>
         )}
-        
+
         <img
           onClick={() => setShowMenu(true)}
           className="w-6 md:hidden"
@@ -101,8 +103,7 @@ const Navbar = () => {
         <div
           className={` ${
             showMenu ? "fixed w-full" : "h-0 w-0"
-          } md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
-        >
+          } md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}>
           <div className="flex items-center justify-between px-5 py-6">
             <img className="w-35" src={assets.logo} alt="" />
             <img
